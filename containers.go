@@ -9,6 +9,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/cyverse-de/logcabin"
 	"github.com/cyverse-de/model"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/docker/engine-api/client"
