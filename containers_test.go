@@ -2,14 +2,15 @@ package dockerops
 
 import (
 	"bytes"
-	"configurate"
 	"fmt"
 	"io/ioutil"
-	"model"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/cyverse-de/configurate"
+	"github.com/cyverse-de/model"
 
 	"github.com/fsouza/go-dockerclient"
 	"github.com/olebedev/config"

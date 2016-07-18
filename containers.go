@@ -3,11 +3,12 @@ package dockerops
 import (
 	"fmt"
 	"io"
-	"logcabin"
-	"model"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/cyverse-de/logcabin"
+	"github.com/cyverse-de/model"
 
 	"github.com/fsouza/go-dockerclient"
 	"github.com/olebedev/config"
