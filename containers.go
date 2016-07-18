@@ -3,14 +3,13 @@ package dockerops
 import (
 	"fmt"
 	"io"
-	"logcabin"
-	"model"
 	"os"
 	"strconv"
 	"strings"
 
 	"golang.org/x/net/context"
 
+	"github.com/cyverse-de/model"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/docker/engine-api/client"
 	"github.com/docker/engine-api/types"

@@ -2,10 +2,8 @@ package dockerops
 
 import (
 	"bytes"
-	"configurate"
 	"fmt"
 	"io/ioutil"
-	"model"
 	"os"
 	"reflect"
 	"strings"
@@ -13,6 +11,8 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/cyverse-de/configurate"
+	"github.com/cyverse-de/model"
 	"github.com/docker/engine-api/types/container"
 	"github.com/docker/engine-api/types/strslice"
 	"github.com/olebedev/config"
