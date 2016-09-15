@@ -15,12 +15,12 @@ import (
 	"github.com/cyverse-de/model"
 	"github.com/docker/engine-api/types/container"
 	"github.com/docker/engine-api/types/strslice"
-	"github.com/olebedev/config"
+	"github.com/spf13/viper"
 )
 
 var (
 	s   *model.Job
-	cfg *config.Config
+	cfg *viper.Viper
 )
 
 func shouldrun() bool {
@@ -260,15 +260,9 @@ func TestCreateDownloadContainer(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err := cfg.String("porklock.image")
-	if err != nil {
-		t.Error(err)
-	}
+	image := cfg.GetString("porklock.image")
 
-	tag, err := cfg.String("porklock.tag")
-	if err != nil {
-		t.Error(err)
-	}
+	tag := cfg.GetString("porklock.tag")
 
 	err = dc.Pull(image, tag)
 	if err != nil {
@@ -363,15 +357,9 @@ func TestCreateUploadContainer(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err := cfg.String("porklock.image")
-	if err != nil {
-		t.Error(err)
-	}
+	image := cfg.GetString("porklock.image")
 
-	tag, err := cfg.String("porklock.tag")
-	if err != nil {
-		t.Error(err)
-	}
+	tag := cfg.GetString("porklock.tag")
 
 	containerName := fmt.Sprintf("/output-%s", job.InvocationID)
 	exists, err := dc.IsContainer(containerName)
@@ -593,15 +581,9 @@ func TestDownloadInputs(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err := cfg.String("porklock.image")
-	if err != nil {
-		t.Error(err)
-	}
+	image := cfg.GetString("porklock.image")
 
-	tag, err := cfg.String("porklock.tag")
-	if err != nil {
-		t.Error(err)
-	}
+	tag := cfg.GetString("porklock.tag")
 
 	err = dc.Pull(image, tag)
 	if err != nil {
@@ -688,15 +670,9 @@ func TestUploadOutputs(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err := cfg.String("porklock.image")
-	if err != nil {
-		t.Error(err)
-	}
+	image := cfg.GetString("porklock.image")
 
-	tag, err := cfg.String("porklock.tag")
-	if err != nil {
-		t.Error(err)
-	}
+	tag := cfg.GetString("porklock.tag")
 
 	err = dc.Pull(image, tag)
 	if err != nil {
@@ -785,15 +761,9 @@ func TestCreateDataContainer(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err := cfg.String("porklock.image")
-	if err != nil {
-		t.Error(err)
-	}
+	image := cfg.GetString("porklock.image")
 
-	tag, err := cfg.String("porklock.tag")
-	if err != nil {
-		t.Error(err)
-	}
+	tag := cfg.GetString("porklock.tag")
 
 	err = dc.Pull(image, tag)
 	if err != nil {
