@@ -500,6 +500,15 @@ func (d *Docker) RunStep(step *model.Step, invID string, idx int) (int, error) {
 	return d.runContainer(containerID, stdoutFile, stderrFile)
 }
 
+// PorkPull will pull the porklock image.
+func (d *Docker) PorkPull() error {
+	image := d.cfg.GetString("porklock.image")
+
+	tag := d.cfg.GetString("porklock.tag")
+
+	return d.Pull(image, tag)
+}
+
 // CreateDownloadContainer creates a container that can be used to download
 // input files.
 func (d *Docker) CreateDownloadContainer(job *model.Job, input *model.StepInput, idx string) (string, error) {
@@ -513,11 +522,7 @@ func (d *Docker) CreateDownloadContainer(job *model.Job, input *model.StepInput,
 	hostConfig := &container.HostConfig{}
 	invID := job.InvocationID
 
-	image = d.cfg.GetString("porklock.image")
-
-	tag = d.cfg.GetString("porklock.tag")
-
-	if err = d.Pull(image, tag); err != nil {
+	if err = d.PorkPull(); err != nil {
 		return "", err
 	}
 
@@ -588,11 +593,7 @@ func (d *Docker) CreateUploadContainer(job *model.Job) (string, error) {
 	config := &container.Config{}
 	hostConfig := &container.HostConfig{}
 
-	image = d.cfg.GetString("porklock.image")
-
-	tag = d.cfg.GetString("porklock.tag")
-
-	if err = d.Pull(image, tag); err != nil {
+	if err = d.PorkPull(); err != nil {
 		return "", err
 	}
 
