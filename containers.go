@@ -7,15 +7,16 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/cyverse-de/logcabin"
 	"github.com/cyverse-de/model"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/docker/engine-api/client"
-	"github.com/docker/engine-api/types"
-	"github.com/docker/engine-api/types/container"
-	"github.com/docker/engine-api/types/filters"
+	nat "github.com/docker/go-connections/nat"
 	"github.com/spf13/viper"
 )
 
@@ -104,8 +105,8 @@ func (d *Docker) ContainersWithLabel(key, value string, all bool) ([]string, err
 	f := filters.NewArgs()
 	f.Add("label", fmt.Sprintf("%s=%s", key, value))
 	opts := types.ContainerListOptions{
-		All:    all,
-		Filter: f,
+		All:     all,
+		Filters: f,
 	}
 	list, err := d.Client.ContainerList(d.ctx, opts)
 	if err != nil {
@@ -162,9 +163,11 @@ func (d *Docker) NukeContainerByName(name string) error {
 
 // ImageID returns the image ID as a string for image with the given name and tag.
 func (d *Docker) ImageID(name, tag string) (string, error) {
+	imageFilter := filters.NewArgs()
+	imageFilter.Add("name", name)
 	images, err := d.Client.ImageList(d.ctx, types.ImageListOptions{
-		MatchName: name,
-		All:       true,
+		Filters: imageFilter,
+		All:     true,
 	})
 	if err != nil {
 		return "", nil
@@ -454,7 +457,7 @@ func (d *Docker) Attach(containerID string, outputWriter, errorWriter io.Writer)
 	return nil
 }
 
-func (d *Docker) runContainer(containerID string, stdout, stderr io.Writer) (int, error) {
+func (d *Docker) runContainer(containerID string, stdout, stderr io.Writer) (int64, error) {
 	var err error
 
 	if err = d.Attach(containerID, stdout, stderr); err != nil {
@@ -470,10 +473,26 @@ func (d *Docker) runContainer(containerID string, stdout, stderr io.Writer) (int
 	return d.Client.ContainerWait(d.ctx, containerID)
 }
 
+// InspectContainer returns a types.ContainerJSON with details about the container.
+func (d *Docker) InspectContainer(containerID string) (types.ContainerJSON, error) {
+	return d.Client.ContainerInspect(d.ctx, containerID)
+}
+
+// ContainerPortMapping returns a *nat.PortMap of all of the port mappings. This
+// is basically just a convenience function that calls InspectContainer and
+// roots through the return value for the port mapping.
+func (d *Docker) ContainerPortMapping(containerID string) (nat.PortMap, error) {
+	inspection, err := d.InspectContainer(containerID)
+	if err != nil {
+		return nil, err
+	}
+	return inspection.NetworkSettings.Ports, err
+}
+
 // RunStep will run the steps in a job. If a step fails, the function will
 // return with a non-zero exit code. If an error occurs, the function will
 // return with a non-zero exit code and a non-nil error.
-func (d *Docker) RunStep(step *model.Step, invID string, idx int) (int, error) {
+func (d *Docker) RunStep(step *model.Step, invID string, idx int) (int64, error) {
 	var (
 		err         error
 		containerID string
@@ -514,7 +533,7 @@ func (d *Docker) PorkPull() error {
 func (d *Docker) CreateDownloadContainer(job *model.Job, input *model.StepInput, idx string) (string, error) {
 	var (
 		wd, name, image, tag string
-		response             types.ContainerCreateResponse
+		response             container.ContainerCreateCreatedBody
 		err                  error
 	)
 
@@ -555,7 +574,7 @@ func (d *Docker) CreateDownloadContainer(job *model.Job, input *model.StepInput,
 
 // DownloadInputs will run the docker containers that down input files into
 // the local working directory.
-func (d *Docker) DownloadInputs(job *model.Job, input *model.StepInput, idx int) (int, error) {
+func (d *Docker) DownloadInputs(job *model.Job, input *model.StepInput, idx int) (int64, error) {
 	var (
 		err                    error
 		containerID            string
@@ -587,7 +606,7 @@ func (d *Docker) CreateUploadContainer(job *model.Job) (string, error) {
 	var (
 		err                  error
 		image, tag, name, wd string
-		response             types.ContainerCreateResponse
+		response             container.ContainerCreateCreatedBody
 	)
 
 	config := &container.Config{}
@@ -624,7 +643,7 @@ func (d *Docker) CreateUploadContainer(job *model.Job) (string, error) {
 }
 
 // UploadOutputs will upload files to iRODS from the local working directory.
-func (d *Docker) UploadOutputs(job *model.Job) (int, error) {
+func (d *Docker) UploadOutputs(job *model.Job) (int64, error) {
 	var (
 		err                    error
 		containerID            string
@@ -652,7 +671,7 @@ func (d *Docker) CreateDataContainer(vf *model.VolumesFrom, invID string) (strin
 	var (
 		err      error
 		rw, name string
-		response types.ContainerCreateResponse
+		response container.ContainerCreateCreatedBody
 	)
 
 	config := &container.Config{}
