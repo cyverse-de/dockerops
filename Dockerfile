@@ -17,6 +17,7 @@ RUN go get github.com/docker/go-connections/nat
 RUN go get github.com/docker/go-connections/sockets
 RUN go get github.com/docker/go-connections/tlsconfig
 RUN go get github.com/docker/go-units
+RUN go get github.com/docker/libtrust
 
 COPY . /go/src/github.com/cyverse-de/dockerops
 
