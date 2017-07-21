@@ -12,10 +12,10 @@ import (
 	"context"
 
 	"github.com/cyverse-de/configurate"
-	"github.com/cyverse-de/model"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/spf13/viper"
+	"gopkg.in/cyverse-de/model.v1"
 )
 
 var (

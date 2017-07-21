@@ -11,7 +11,6 @@ import (
 	"context"
 
 	"github.com/cyverse-de/logcabin"
-	"github.com/cyverse-de/model"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -20,6 +19,7 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 	nat "github.com/docker/go-connections/nat"
 	"github.com/spf13/viper"
+	"gopkg.in/cyverse-de/model.v1"
 )
 
 // Docker provides operations that runner needs from the docker client.
